@@ -39,6 +39,7 @@ import org.optaplanner.core.impl.localsearch.decider.acceptor.tabu.ValueTabuAcce
 import org.optaplanner.core.impl.localsearch.decider.acceptor.tabu.size.EntityRatioTabuSizeStrategy;
 import org.optaplanner.core.impl.localsearch.decider.acceptor.tabu.size.FixedTabuSizeStrategy;
 import org.optaplanner.core.impl.localsearch.decider.acceptor.tabu.size.ValueRatioTabuSizeStrategy;
+import org.optaplanner.core.impl.localsearch.decider.acceptor.greatdeluge.GreatDelugeAcceptor;
 
 import static org.apache.commons.lang3.ObjectUtils.*;
 
@@ -73,6 +74,9 @@ public class AcceptorConfig extends AbstractConfig<AcceptorConfig> {
 
     protected Integer stepCountingHillClimbingSize = null;
     protected StepCountingHillClimbingType stepCountingHillClimbingType = null;
+
+    protected String greatDelugeStartingWaterLevel = null;
+    protected Double greatDelugeRainSpeed = null;
 
     @Deprecated
     public List<Class<? extends Acceptor>> getAcceptorClassList() {
@@ -493,6 +497,14 @@ public class AcceptorConfig extends AbstractConfig<AcceptorConfig> {
                     = defaultIfNull(stepCountingHillClimbingType, StepCountingHillClimbingType.STEP);
             StepCountingHillClimbingAcceptor acceptor = new StepCountingHillClimbingAcceptor(
                     stepCountingHillClimbingSize_, stepCountingHillClimbingType_);
+            acceptorList.add(acceptor);
+        }
+        if ((acceptorTypeList!= null && acceptorTypeList.contains(AcceptorType.GREAT_DELUGE))
+                || (greatDelugeStartingWaterLevel != null && greatDelugeRainSpeed != null)) {
+            GreatDelugeAcceptor acceptor = new GreatDelugeAcceptor();
+            acceptor.setRainSpeed(greatDelugeRainSpeed);
+            acceptor.setInitialLevels(configPolicy.getScoreDefinition()
+                    .parseScore(greatDelugeStartingWaterLevel));
             acceptorList.add(acceptor);
         }
         if (acceptorList.size() == 1) {

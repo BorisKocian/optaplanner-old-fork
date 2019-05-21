@@ -13,10 +13,11 @@ public class GreatDelugeAcceptor extends AbstractAcceptor {
     private double rainSpeed;
 
     private int levelsLength = -1;
-    private double[] initialLevelLevels;
-    private double[] levelLevels;
+    private double[] initialLevelScoreLevels;
+    private double[] levelScoreLevels;
 
     private double levelMinimum = 0;
+    private final double THRESHOLD = .0001;
 
     public void setInitialLevels(Score initialLevel) { this.initialLevel = initialLevel; }
 
@@ -30,41 +31,33 @@ public class GreatDelugeAcceptor extends AbstractAcceptor {
                         + ") cannot have negative level (" + initialLevelLevel + ").");
             }
         }
-        initialLevelLevels = ScoreUtils.extractLevelDoubles(initialLevel);
-        levelLevels = initialLevelLevels;
-        levelsLength = levelLevels.length;
+        initialLevelScoreLevels = ScoreUtils.extractLevelDoubles(initialLevel);
+        levelScoreLevels = initialLevelScoreLevels;
+        levelsLength = levelScoreLevels.length;
     }
 
     public void phaseEnded(LocalSearchPhaseScope phaseScope) {
         super.phaseEnded(phaseScope);
-        initialLevelLevels = null;
-        levelLevels = null;
+        initialLevelScoreLevels = null;
+        levelScoreLevels = null;
         levelsLength = -1;
     }
 
     @Override
     public boolean isAccepted(LocalSearchMoveScope moveScope) {
 
-        LocalSearchPhaseScope phaseScope = moveScope.getStepScope().getPhaseScope();
-        Score lastStepScore = phaseScope.getLastCompletedStepScope().getScore();
         Score moveScore = moveScope.getScore();
-
-        /*
-        if (moveScore.compareTo(lastStepScore) >= 0) {
-            return true;
-        }
-        */
 
         double[] moveScoreLevels = ScoreUtils.extractLevelDoubles(moveScore);
 
         for (int i = 0; i < levelsLength; i++) {
 
             double moveScoreLevel = moveScoreLevels[i];
-            double levelLevel = levelLevels[i];
+            double levelScoreLevel = -levelScoreLevels[i];
 
-            if (moveScoreLevel > -levelLevel) {
+            if (moveScoreLevel > levelScoreLevel) {
                 return true;
-            } else if (moveScoreLevel == -levelLevel) {
+            } else if (Math.abs(moveScoreLevel - levelScoreLevel) < THRESHOLD) {
                 continue;
             } else {
                 return false;
@@ -77,12 +70,10 @@ public class GreatDelugeAcceptor extends AbstractAcceptor {
     public void stepStarted(LocalSearchStepScope stepScope) {
         super.stepEnded(stepScope);
         for (int i = 0; i < levelsLength; i++) {
-            levelLevels[i] = initialLevelLevels[i] - rainSpeed;
-            if (levelLevels[i] < levelMinimum) {
-                levelLevels[i] = levelMinimum;
+            levelScoreLevels[i] = initialLevelScoreLevels[i] - rainSpeed;
+            if (levelScoreLevels[i] < levelMinimum) {
+                levelScoreLevels[i] = levelMinimum;
             }
-
         }
-
     }
 }

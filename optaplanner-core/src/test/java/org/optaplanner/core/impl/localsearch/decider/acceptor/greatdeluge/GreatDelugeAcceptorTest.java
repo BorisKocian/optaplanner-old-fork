@@ -10,10 +10,6 @@ import org.optaplanner.core.impl.localsearch.scope.LocalSearchPhaseScope;
 import org.optaplanner.core.impl.localsearch.scope.LocalSearchStepScope;
 import org.optaplanner.core.impl.solver.scope.DefaultSolverScope;
 import org.optaplanner.core.impl.testdata.domain.TestdataSolution;
-
-
-import java.util.Random;
-
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 
@@ -60,7 +56,6 @@ public class GreatDelugeAcceptorTest extends AbstractAcceptorTest {
         LocalSearchStepScope<TestdataSolution> stepScope1 = new LocalSearchStepScope<>(phaseScope);
         acceptor.stepStarted(stepScope1);
         LocalSearchMoveScope<TestdataSolution> moveScope1 = buildMoveScope(stepScope1, -600);
-        //assertEquals(true, acceptor.isAccepted(buildMoveScope(stepScope1, -900)));
         assertEquals(false, acceptor.isAccepted(buildMoveScope(stepScope1, -2000)));
         assertEquals(true, acceptor.isAccepted(buildMoveScope(stepScope1, -700)));
         assertEquals(false, acceptor.isAccepted(buildMoveScope(stepScope1, -1000)));
@@ -131,7 +126,6 @@ public class GreatDelugeAcceptorTest extends AbstractAcceptorTest {
         assertEquals(true, acceptor.isAccepted(moveScope2));
         assertEquals(false, acceptor.isAccepted(moveScope3));
         assertEquals(true, acceptor.isAccepted(moveScope4));
-
 
         stepScope0.setStep(moveScope4.getMove());
         stepScope0.setScore(moveScope4.getScore());
