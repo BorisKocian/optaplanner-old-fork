@@ -21,7 +21,7 @@ public class GreatDelugeAcceptorTest extends AbstractAcceptorTest {
 
         GreatDelugeAcceptor acceptor = new GreatDelugeAcceptor();
         acceptor.setInitialLevels(SimpleScore.of(1100));
-        acceptor.setRainSpeed(100);
+        acceptor.setRainSpeed(100.0);
 
         DefaultSolverScope<TestdataSolution> solverScope = new DefaultSolverScope<>();
         solverScope.setBestScore(SimpleScore.of(-1000));
@@ -95,7 +95,7 @@ public class GreatDelugeAcceptorTest extends AbstractAcceptorTest {
 
         GreatDelugeAcceptor acceptor = new GreatDelugeAcceptor();
         acceptor.setInitialLevels(HardMediumSoftScore.of(0, 200, 500));
-        acceptor.setRainSpeed(100);
+        acceptor.setRainSpeed(100.0);
 
         DefaultSolverScope<TestdataSolution> solverScope = new DefaultSolverScope<>();
         solverScope.setBestScore(HardMediumSoftScore.of(0, -200, -1000));

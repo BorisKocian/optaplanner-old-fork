@@ -9,30 +9,53 @@ import org.optaplanner.core.impl.score.ScoreUtils;
 
 public class GreatDelugeAcceptor extends AbstractAcceptor {
 
-    private Score initialLevel;
-    private double rainSpeed;
+    private Score initialLevel = null;
+
+    private Double rainSpeed = null;
+    private Double rainSpeedRatio = null;
 
     private int levelsLength = -1;
     private double[] initialLevelScoreLevels;
+    private double[] initialLevelScoreLevelsNegative;
     private double[] levelScoreLevels;
 
     private double levelMinimum = 0;
-    private final double THRESHOLD = .0001;
+    private final double THRESHOLD = .0000001;
+    private final double DEFAULTRAINSPEEDRATIO = 0.99999995;
 
     public void setInitialLevels(Score initialLevel) { this.initialLevel = initialLevel; }
 
-    public void setRainSpeed(double rainSpeed) { this.rainSpeed = rainSpeed; }
+    public void setRainSpeed(Double rainSpeed) { this.rainSpeed = rainSpeed; }
+
+    public void setRainSpeedRatio(Double rainSpeedRatio) {this.rainSpeedRatio = rainSpeedRatio; }
 
     public void phaseStarted(LocalSearchPhaseScope phaseScope) {
         super.phaseStarted(phaseScope);
-        for (double initialLevelLevel : ScoreUtils.extractLevelDoubles(initialLevel)) {
-            if (initialLevelLevel < 0.0) {
-                throw new IllegalArgumentException("The initial level (" + initialLevel
-                        + ") cannot have negative level (" + initialLevelLevel + ").");
+
+        if (initialLevel != null) {
+            for (double initialLevelLevel : ScoreUtils.extractLevelDoubles(initialLevel)) {
+                if (initialLevelLevel < 0.0) {
+                    throw new IllegalArgumentException("The initial level (" + initialLevel
+                            + ") cannot have negative level (" + initialLevelLevel + ").");
+                }
+            }
+            initialLevelScoreLevels = ScoreUtils.extractLevelDoubles(initialLevel);
+            levelScoreLevels = initialLevelScoreLevels;
+        } else {
+            initialLevelScoreLevelsNegative = ScoreUtils.extractLevelDoubles(phaseScope.getBestScore());
+            logger.info(phaseScope.getBestScore().toShortString());
+            levelScoreLevels = initialLevelScoreLevelsNegative;
+
+            for (int i = 0; i < levelScoreLevels.length; i++) {
+
+                if (Math.abs(levelScoreLevels[i]) < THRESHOLD) {
+                    logger.info(Double.toString(levelScoreLevels[i]));
+                    continue;
+                }
+                levelScoreLevels[i] = -levelScoreLevels[i]+5;
+                logger.info(Double.toString(levelScoreLevels[i]));
             }
         }
-        initialLevelScoreLevels = ScoreUtils.extractLevelDoubles(initialLevel);
-        levelScoreLevels = initialLevelScoreLevels;
         levelsLength = levelScoreLevels.length;
     }
 
@@ -53,11 +76,15 @@ public class GreatDelugeAcceptor extends AbstractAcceptor {
         for (int i = 0; i < levelsLength; i++) {
 
             double moveScoreLevel = moveScoreLevels[i];
-            double levelScoreLevel = -levelScoreLevels[i];
+            double levelScoreLevel = levelScoreLevels[i];
 
-            if (moveScoreLevel > levelScoreLevel) {
+            if (moveScoreLevel > -levelScoreLevel) {
                 return true;
             } else if (Math.abs(moveScoreLevel - levelScoreLevel) < THRESHOLD) {
+
+                if (i == levelsLength -1) {
+                    return true;
+                }
                 continue;
             } else {
                 return false;
@@ -70,7 +97,14 @@ public class GreatDelugeAcceptor extends AbstractAcceptor {
     public void stepStarted(LocalSearchStepScope stepScope) {
         super.stepEnded(stepScope);
         for (int i = 0; i < levelsLength; i++) {
-            levelScoreLevels[i] = initialLevelScoreLevels[i] - rainSpeed;
+
+            if (rainSpeed != null) {
+                levelScoreLevels[i] = levelScoreLevels[i] - rainSpeed;
+            } else if (rainSpeedRatio != null) {
+                levelScoreLevels[i] = levelScoreLevels[i] * rainSpeedRatio;
+            } else {
+                levelScoreLevels[i] = levelScoreLevels[i] * DEFAULTRAINSPEEDRATIO;
+            }
             if (levelScoreLevels[i] < levelMinimum) {
                 levelScoreLevels[i] = levelMinimum;
             }

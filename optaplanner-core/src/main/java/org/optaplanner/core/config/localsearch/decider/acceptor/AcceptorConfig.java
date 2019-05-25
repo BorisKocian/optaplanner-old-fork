@@ -19,6 +19,7 @@ package org.optaplanner.core.config.localsearch.decider.acceptor;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sun.xml.internal.bind.v2.TODO;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
 import org.optaplanner.core.config.AbstractConfig;
@@ -77,6 +78,7 @@ public class AcceptorConfig extends AbstractConfig<AcceptorConfig> {
 
     protected String greatDelugeStartingWaterLevel = null;
     protected Double greatDelugeRainSpeed = null;
+    protected Double greatDelugeRainSpeedRatio = null;
 
     @Deprecated
     public List<Class<? extends Acceptor>> getAcceptorClassList() {
@@ -500,11 +502,24 @@ public class AcceptorConfig extends AbstractConfig<AcceptorConfig> {
             acceptorList.add(acceptor);
         }
         if ((acceptorTypeList!= null && acceptorTypeList.contains(AcceptorType.GREAT_DELUGE))
-                || (greatDelugeStartingWaterLevel != null && greatDelugeRainSpeed != null)) {
+                || greatDelugeRainSpeed != null || greatDelugeRainSpeedRatio != null) {
             GreatDelugeAcceptor acceptor = new GreatDelugeAcceptor();
-            acceptor.setRainSpeed(greatDelugeRainSpeed);
-            acceptor.setInitialLevels(configPolicy.getScoreDefinition()
-                    .parseScore(greatDelugeStartingWaterLevel));
+
+            if (greatDelugeRainSpeed != null && greatDelugeRainSpeedRatio != null) {
+                throw new IllegalArgumentException("You can use only rainSpeed or rainSpeedRatio at a time.");
+            }
+
+            if (greatDelugeRainSpeed != null) {
+                acceptor.setRainSpeed(greatDelugeRainSpeed);
+            }
+            if (greatDelugeRainSpeedRatio != null) {
+                acceptor.setRainSpeedRatio(greatDelugeRainSpeedRatio);
+            }
+
+            if (greatDelugeStartingWaterLevel != null) {
+                acceptor.setInitialLevels(configPolicy.getScoreDefinition()
+                        .parseScore(greatDelugeStartingWaterLevel));
+            }
             acceptorList.add(acceptor);
         }
         if (acceptorList.size() == 1) {
