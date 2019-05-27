@@ -64,8 +64,8 @@
           <!--</subChainSwapMoveSelector>-->
         </unionMoveSelector>
         <acceptor>
-          <greatDelugeStartingWaterLevel>10000000</greatDelugeStartingWaterLevel>
-          <greatDelugeRainSpeed>10</greatDelugeRainSpeed>
+          <!--<greatDelugeStartingWaterLevel>10000000</greatDelugeStartingWaterLevel>-->
+          <greatDelugeRainSpeedRatio>0.99995</greatDelugeRainSpeedRatio>
         </acceptor>
         <forager>
           <acceptedCountLimit>100</acceptedCountLimit>
